@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:prodee_test;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    defer-datasource-initialization: false
+    properties:
+      hibernate:
+        format_sql: false
+  sql:
+    init:
+      mode: never
+
+prodee:
+  jwt:
+    secret: testSecretKeyThatIsAtLeast256BitsLongForTestingPurposesOnly1234567890AbCdEfGhIjKlMnOp
+    expiration-ms: 86400000
+  cloudinary:
+    cloud-name: demo
+    api-key: demo
+    api-secret: demo
+  devto:
+    api-url: https://dev.to/api/articles

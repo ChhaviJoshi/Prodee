@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: prodee
+
+  # ---------- Datasource ----------
+  datasource:
+    url: jdbc:postgresql://localhost:5432/prodee
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  # ---------- JPA / Hibernate ----------
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    defer-datasource-initialization: true
+
+  # ---------- SQL seed data ----------
+  sql:
+    init:
+      mode: always
+
+# ---------- Prodee Custom Properties ----------
+prodee:
+  jwt:
+    secret: ${JWT_SECRET:myVeryLongAndSecureJwtSecretKeyForProdeeApplicationThatIsAtLeast256BitsLongAndSecure2024}
+    expiration-ms: 86400000 # 24 hours
+  cloudinary:
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:demo}
+    api-key: ${CLOUDINARY_API_KEY:demo}
+    api-secret: ${CLOUDINARY_API_SECRET:demo}
+  devto:
+    api-url: https://dev.to/api/articles
+
+# ---------- Server ----------
+server:
+  port: 8080
+
+# ---------- Swagger / OpenAPI ----------
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
