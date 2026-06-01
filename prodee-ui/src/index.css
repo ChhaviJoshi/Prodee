@@ -1,0 +1,261 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════
+   PRODEE — 8-Bit RPG Design System
+   ═══════════════════════════════════════════════ */
+
+/* ── Pixel Font ─────────────────────────────── */
+@theme {
+  --font-pixel: "Press Start 2P", monospace;
+
+  /* Light palette */
+  --color-retro-bg: #f0e6d3;
+  --color-retro-surface: #fff8ee;
+  --color-retro-border: #3e2723;
+  --color-retro-text: #2d1b0e;
+  --color-retro-muted: #8b7355;
+  --color-retro-accent: #e85d04;
+  --color-retro-accent2: #2196f3;
+  --color-retro-xp: #4caf50;
+  --color-retro-coin: #ffc107;
+  --color-retro-danger: #d32f2f;
+  --color-retro-card: #fff8ee;
+  --color-retro-shadow: #c4a882;
+  --color-retro-input: #fff3e0;
+  --color-retro-sky: #87ceeb;
+  --color-retro-grass: #4a7c59;
+  --color-retro-mountain: #8d6e63;
+}
+
+/* ── Dark mode overrides ────────────────────── */
+.dark {
+  --color-retro-bg: #1a1a2e;
+  --color-retro-surface: #16213e;
+  --color-retro-border: #e0c097;
+  --color-retro-text: #e8d5b7;
+  --color-retro-muted: #8b7355;
+  --color-retro-accent: #ff7b00;
+  --color-retro-accent2: #64b5f6;
+  --color-retro-xp: #66bb6a;
+  --color-retro-coin: #ffca28;
+  --color-retro-danger: #ef5350;
+  --color-retro-card: #1e2a47;
+  --color-retro-shadow: #0f1529;
+  --color-retro-input: #253254;
+  --color-retro-sky: #1a1a2e;
+  --color-retro-grass: #2e5a3a;
+  --color-retro-mountain: #5d4037;
+}
+
+/* ── Base styles ──────────────────────────── */
+* {
+  image-rendering: pixelated;
+}
+
+body {
+  font-family: "Press Start 2P", monospace;
+  background-color: var(--color-retro-bg);
+  color: var(--color-retro-text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Pixel border utility ────────────────── */
+.pixel-border {
+  border: 3px solid var(--color-retro-border);
+  box-shadow:
+    inset -2px -2px 0 0 var(--color-retro-shadow),
+    inset 2px 2px 0 0 rgba(255, 255, 255, 0.15),
+    4px 4px 0 0 var(--color-retro-shadow);
+}
+
+.pixel-border-sm {
+  border: 2px solid var(--color-retro-border);
+  box-shadow:
+    inset -1px -1px 0 0 var(--color-retro-shadow),
+    inset 1px 1px 0 0 rgba(255, 255, 255, 0.1),
+    2px 2px 0 0 var(--color-retro-shadow);
+}
+
+/* ── Pixel button ────────────────────────── */
+.pixel-btn {
+  border: 3px solid var(--color-retro-border);
+  background: var(--color-retro-accent);
+  color: #fff;
+  padding: 8px 16px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow:
+    inset -2px -2px 0 0 rgba(0, 0, 0, 0.3),
+    inset 2px 2px 0 0 rgba(255, 255, 255, 0.2),
+    4px 4px 0 0 var(--color-retro-shadow);
+  transition:
+    transform 80ms,
+    box-shadow 80ms;
+  position: relative;
+}
+
+.pixel-btn:hover {
+  transform: translate(1px, 1px);
+  box-shadow:
+    inset -2px -2px 0 0 rgba(0, 0, 0, 0.3),
+    inset 2px 2px 0 0 rgba(255, 255, 255, 0.2),
+    2px 2px 0 0 var(--color-retro-shadow);
+}
+
+.pixel-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow:
+    inset -2px -2px 0 0 rgba(0, 0, 0, 0.3),
+    inset 2px 2px 0 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ── Pixel input ─────────────────────────── */
+.pixel-input {
+  border: 2px solid var(--color-retro-border);
+  background: var(--color-retro-input);
+  color: var(--color-retro-text);
+  padding: 8px 12px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  box-shadow: inset 2px 2px 0 0 rgba(0, 0, 0, 0.1);
+}
+
+.pixel-input:focus {
+  outline: none;
+  border-color: var(--color-retro-accent);
+  box-shadow:
+    inset 2px 2px 0 0 rgba(0, 0, 0, 0.1),
+    0 0 0 2px var(--color-retro-accent);
+}
+
+/* ── Retro checkbox ──────────────────────── */
+.retro-checkbox {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-retro-border);
+  background: var(--color-retro-input);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.retro-checkbox:checked {
+  background: var(--color-retro-xp);
+}
+
+.retro-checkbox:checked::after {
+  content: "✦";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 10px;
+}
+
+/* ── XP bar ──────────────────────────────── */
+.xp-bar-track {
+  height: 10px;
+  background: var(--color-retro-input);
+  border: 2px solid var(--color-retro-border);
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background: var(--color-retro-xp);
+  transition: width 400ms ease;
+}
+
+/* ── Pixel card hover ────────────────────── */
+.pixel-card-hover {
+  transition:
+    transform 120ms,
+    box-shadow 120ms;
+}
+
+.pixel-card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    inset -2px -2px 0 0 var(--color-retro-shadow),
+    inset 2px 2px 0 0 rgba(255, 255, 255, 0.15),
+    4px 6px 0 0 var(--color-retro-shadow);
+}
+
+/* ── Scrollbar ───────────────────────────── */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-retro-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-retro-muted);
+  border: 2px solid var(--color-retro-border);
+}
+
+/* ── Animations ──────────────────────────── */
+@keyframes pixel-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes pixel-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-pixel-bounce {
+  animation: pixel-bounce 0.6s ease-in-out;
+}
+
+.animate-pixel-fade-in {
+  animation: pixel-fade-in 0.3s ease-out forwards;
+}
+
+/* ── Stagger children ────────────────────── */
+.stagger-children > * {
+  opacity: 0;
+  animation: pixel-fade-in 0.3s ease-out forwards;
+}
+
+.stagger-children > *:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.stagger-children > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.stagger-children > *:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.stagger-children > *:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.stagger-children > *:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.stagger-children > *:nth-child(6) {
+  animation-delay: 0.3s;
+}
+.stagger-children > *:nth-child(7) {
+  animation-delay: 0.35s;
+}
+.stagger-children > *:nth-child(8) {
+  animation-delay: 0.4s;
+}

@@ -36,18 +36,19 @@ public class DailyAnalyticsService {
 
         DailyAnalyticsLog log;
         if (existing.isPresent()) {
-            // Update existing log for this date
             log = existing.get();
             log.setSleepHours(request.sleepHours());
-            log.setScreenTimeMinutes(request.screenTimeMinutes());
-            log.setProductivityFocusMinutes(request.productivityFocusMinutes());
+            log.setScreenTimeHours(request.screenTimeHours());
+            log.setWaterGlasses(request.waterGlasses() != null ? request.waterGlasses() : 0);
+            log.setExerciseMinutes(request.exerciseMinutes() != null ? request.exerciseMinutes() : 0);
         } else {
             log = DailyAnalyticsLog.builder()
                     .user(user)
                     .logDate(request.date())
                     .sleepHours(request.sleepHours())
-                    .screenTimeMinutes(request.screenTimeMinutes())
-                    .productivityFocusMinutes(request.productivityFocusMinutes())
+                    .screenTimeHours(request.screenTimeHours())
+                    .waterGlasses(request.waterGlasses() != null ? request.waterGlasses() : 0)
+                    .exerciseMinutes(request.exerciseMinutes() != null ? request.exerciseMinutes() : 0)
                     .build();
         }
         return toResponse(analyticsLogRepository.save(log));
@@ -92,6 +93,6 @@ public class DailyAnalyticsService {
     private DailyAnalyticsResponse toResponse(DailyAnalyticsLog h) {
         return new DailyAnalyticsResponse(
                 h.getId(), h.getLogDate(), h.getSleepHours(),
-                h.getScreenTimeMinutes(), h.getProductivityFocusMinutes());
+                h.getScreenTimeHours(), h.getWaterGlasses(), h.getExerciseMinutes());
     }
 }

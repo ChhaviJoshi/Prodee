@@ -6,6 +6,8 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Each user can define their own "Year in Pixels" templates (EAV pattern).
@@ -36,6 +38,10 @@ public class LogTemplate {
      */
     @Column(columnDefinition = "TEXT", nullable = false)
     private String colorMapping;
+
+    @OneToMany(mappedBy = "template", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<DailyPixel> dailyPixels = new ArrayList<>();
 
     @CreationTimestamp
     private Instant createdAt;

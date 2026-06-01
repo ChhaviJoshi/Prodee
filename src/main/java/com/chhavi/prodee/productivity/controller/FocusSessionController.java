@@ -47,4 +47,11 @@ public class FocusSessionController {
             @AuthenticationPrincipal UserDetails user) {
         return ResponseEntity.ok(ApiResponse.success(focusSessionService.getWeeklySessions(user.getUsername())));
     }
+
+    @GetMapping("/productive-minutes")
+    @Operation(summary = "Get total productive minutes across all sessions")
+    public ResponseEntity<ApiResponse<Integer>> getProductiveMinutes(
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(ApiResponse.success(focusSessionService.getTotalProductiveMinutes(user.getUsername())));
+    }
 }

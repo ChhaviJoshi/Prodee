@@ -6,6 +6,7 @@ public record DailyAnalyticsResponse(
         Long id,
         LocalDate date,
         Double sleepHours,
-        Integer screenTimeMinutes,
-        Integer productivityFocusMinutes
+        Double screenTimeHours,
+        Integer waterGlasses,
+        Integer exerciseMinutes
 ) {}

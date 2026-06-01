@@ -37,7 +37,7 @@ class DailyAnalyticsControllerTest extends AbstractIntegrationTest {
         @DisplayName("201 — valid analytics entry is created")
         void givenValidLog_whenCreate_thenReturn201() throws Exception {
             DailyAnalyticsRequest req = new DailyAnalyticsRequest(
-                    LocalDate.now(), 7.5, 120, 90);
+                    LocalDate.now(), 7.5, 2.0, 8, 90);
 
             mockMvc.perform(post(BASE)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -54,9 +54,9 @@ class DailyAnalyticsControllerTest extends AbstractIntegrationTest {
         @DisplayName("201 — posting same day again performs upsert (updates existing)")
         void givenSameDate_whenCreateAgain_thenUpsert() throws Exception {
             DailyAnalyticsRequest first = new DailyAnalyticsRequest(
-                    LocalDate.now(), 6.0, 200, 60);
+                    LocalDate.now(), 6.0, 3.0, 8, 60);
             DailyAnalyticsRequest second = new DailyAnalyticsRequest(
-                    LocalDate.now(), 8.0, 100, 120);
+                    LocalDate.now(), 8.0, 1.5, 10, 120);
 
             // First log
             mockMvc.perform(post(BASE)
@@ -119,7 +119,7 @@ class DailyAnalyticsControllerTest extends AbstractIntegrationTest {
         @DisplayName("401 — unauthenticated request is rejected")
         void givenNoAuth_whenCreate_thenReturn401() throws Exception {
             DailyAnalyticsRequest req = new DailyAnalyticsRequest(
-                    LocalDate.now(), 7.0, 120, 90);
+                    LocalDate.now(), 7.0, 2.0, 8, 90);
 
             mockMvc.perform(post(BASE)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -185,7 +185,7 @@ class DailyAnalyticsControllerTest extends AbstractIntegrationTest {
     // ── HELPERS ──────────────────────────────────────────────
 
     private void logAnalytics(LocalDate date) throws Exception {
-        DailyAnalyticsRequest req = new DailyAnalyticsRequest(date, 7.0, 120, 90);
+        DailyAnalyticsRequest req = new DailyAnalyticsRequest(date, 7.0, 2.0, 8, 90);
 
         mockMvc.perform(post(BASE)
                         .contentType(MediaType.APPLICATION_JSON)

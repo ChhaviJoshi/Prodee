@@ -21,6 +21,9 @@ public interface HabitRepository extends JpaRepository<Habit, Long> {
     @Query("SELECT DISTINCT h.tag FROM Habit h WHERE h.user.id = :userId AND h.active = true AND h.tag IS NOT NULL")
     List<String> findDistinctActiveTagsByUserId(Long userId);
 
+    @Query("SELECT COUNT(h) FROM Habit h WHERE h.user.id = :userId AND h.active = true AND UPPER(h.frequency) = 'DAILY'")
+    long countActiveDailyHabitsByUserId(Long userId);
+
     /**
      * Bulk reset streaks for DAILY habits that were NOT completed yesterday.
      * Uses a NOT EXISTS sub-query against habit_completions to avoid N+1.

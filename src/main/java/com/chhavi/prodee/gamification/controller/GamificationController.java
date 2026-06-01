@@ -4,6 +4,8 @@ import com.chhavi.prodee.common.dto.ApiResponse;
 import com.chhavi.prodee.gamification.dto.GamificationStatus;
 import com.chhavi.prodee.gamification.dto.InventoryItemResponse;
 import com.chhavi.prodee.gamification.dto.ShopItemResponse;
+import com.chhavi.prodee.gamification.dto.StickerInventoryResponse;
+import com.chhavi.prodee.gamification.dto.StickerResponse;
 import com.chhavi.prodee.gamification.service.GamificationService;
 import com.chhavi.prodee.gamification.service.ShopService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,5 +61,28 @@ public class GamificationController {
     public ResponseEntity<ApiResponse<List<InventoryItemResponse>>> getInventory(
             @AuthenticationPrincipal UserDetails user) {
         return ResponseEntity.ok(ApiResponse.success(shopService.getInventory(user.getUsername())));
+    }
+
+    @GetMapping("/stickers/shop")
+    @Operation(summary = "Get all available scrapbook stickers")
+    public ResponseEntity<ApiResponse<List<StickerResponse>>> getStickers() {
+        return ResponseEntity.ok(ApiResponse.success(shopService.getAllStickers()));
+    }
+
+    @PostMapping("/stickers/buy/{stickerId}")
+    @Operation(summary = "Purchase a scrapbook sticker")
+    public ResponseEntity<ApiResponse<StickerInventoryResponse>> buySticker(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable Long stickerId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                "Sticker purchased!",
+                shopService.purchaseSticker(user.getUsername(), stickerId)));
+    }
+
+    @GetMapping("/stickers/inventory")
+    @Operation(summary = "Get the current user's scrapbook sticker inventory")
+    public ResponseEntity<ApiResponse<List<StickerInventoryResponse>>> getStickerInventory(
+            @AuthenticationPrincipal UserDetails user) {
+        return ResponseEntity.ok(ApiResponse.success(shopService.getStickerInventory(user.getUsername())));
     }
 }

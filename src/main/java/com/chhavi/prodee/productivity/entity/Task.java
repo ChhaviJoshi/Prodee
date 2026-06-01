@@ -32,17 +32,15 @@ public class Task {
     private TaskDifficulty difficulty;
 
     @Builder.Default
-    private boolean recurring = false;
-
-    @Builder.Default
-    @Column(name = "is_private")
-    private boolean isPrivate = false;
-
-    @Builder.Default
     private boolean completed = false;
 
     /** Comma-separated tags e.g. "Java,Learning,Backend" */
     private String tags;
+
+    // Backward-compatible with existing DB schema where `recurring` may still be NOT NULL.
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean recurring = false;
 
     private LocalDate dueDate;
     private Instant completedAt;

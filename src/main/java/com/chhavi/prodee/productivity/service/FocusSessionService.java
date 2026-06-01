@@ -58,6 +58,12 @@ public class FocusSessionService {
                 .stream().map(this::toResponse).toList();
     }
 
+    public int getTotalProductiveMinutes(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        return sessionRepository.sumActualMinutesByUserId(user.getId());
+    }
+
     private FocusSessionResponse toResponse(FocusSession s) {
         return new FocusSessionResponse(
                 s.getId(), s.getExpectedDurationMinutes(), s.getActualDurationMinutes(),

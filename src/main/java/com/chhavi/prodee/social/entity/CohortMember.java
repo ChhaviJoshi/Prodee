@@ -33,6 +33,10 @@ public class CohortMember {
     @Builder.Default
     private int dailyScore = 0;
 
+    /** Number of days this member finished rank #1 (ties included). */
+    @Builder.Default
+    private int firstPlaceFinishes = 0;
+
     @CreationTimestamp
     private Instant joinedAt;
 }

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -13,8 +14,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByUserIdOrderByCreatedAtDesc(Long userId);
     List<Task> findByUserIdAndCompleted(Long userId, boolean completed);
     List<Task> findByUserIdAndDueDate(Long userId, LocalDate dueDate);
-    List<Task> findByUserIdAndIsPrivateFalse(Long userId);
     long countByUserIdAndCompletedTrue(Long userId);
+    long countByUserIdAndCompletedAtBetween(Long userId, Instant start, Instant end);
 
     /** Get distinct non-null tags from incomplete tasks (for smart-feed aggregation) */
     @Query("SELECT DISTINCT t.tags FROM Task t WHERE t.completed = false AND t.tags IS NOT NULL")

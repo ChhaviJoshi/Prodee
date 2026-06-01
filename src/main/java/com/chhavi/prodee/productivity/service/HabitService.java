@@ -99,6 +99,15 @@ public class HabitService {
     }
 
     @Transactional
+    public HabitResponse updateHabit(String username, Long habitId, HabitRequest request) {
+        Habit habit = findHabitForUser(username, habitId);
+        habit.setTitle(request.title());
+        habit.setTag(request.tag());
+        habit.setFrequency(request.frequency().toUpperCase());
+        return toResponse(habitRepository.save(habit));
+    }
+
+    @Transactional
     public void deleteHabit(String username, Long habitId) {
         Habit habit = findHabitForUser(username, habitId);
         habitRepository.delete(habit);
@@ -111,7 +120,7 @@ public class HabitService {
      * Resets streaks for DAILY habits that were NOT completed yesterday.
      * Uses a single bulk JPQL UPDATE — no N+1.
      */
-    @Scheduled(cron = "0 5 0 * * *")
+    @Scheduled(cron = "0 5 0 * * *", zone = "Asia/Kolkata")
     @Transactional
     public void resetStaleStreaks() {
         LocalDate yesterday = LocalDate.now().minusDays(1);

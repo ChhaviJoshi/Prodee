@@ -9,6 +9,7 @@ import com.chhavi.prodee.auth.repository.UserRepository;
 import com.chhavi.prodee.auth.security.JwtTokenProvider;
 import com.chhavi.prodee.common.exception.BadRequestException;
 import com.chhavi.prodee.common.exception.ResourceNotFoundException;
+import com.chhavi.prodee.journaling.service.PixelJournalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +30,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
+        private final PixelJournalService pixelJournalService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -50,6 +52,7 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
+        pixelJournalService.createDefaultMoodTemplateForUser(user);
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.username(), request.password()));

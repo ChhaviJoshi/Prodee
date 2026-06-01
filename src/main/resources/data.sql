@@ -31,3 +31,23 @@ INSERT INTO shop_items (id, name, description, category, price, level_required) 
 (11, 'Snake Token', 'Unlock a 60-second Snake brain-break', 'MINI_GAME_TOKEN', 10, 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO shop_items (id, name, description, category, price, level_required) VALUES
 (12, 'Tic-Tac-Toe Token', 'Challenge the AI to a quick game', 'MINI_GAME_TOKEN', 10, 1) ON CONFLICT (id) DO NOTHING;
+
+-- Scrapbook Stickers
+INSERT INTO stickers (id, name, image_url, price) VALUES
+(1, 'Star Burst', '/stickers/star-burst.svg', 12) ON CONFLICT (id) DO NOTHING;
+INSERT INTO stickers (id, name, image_url, price) VALUES
+(2, 'Pixel Heart', '/stickers/pixel-heart.svg', 15) ON CONFLICT (id) DO NOTHING;
+INSERT INTO stickers (id, name, image_url, price) VALUES
+(3, 'Magic Spark', '/stickers/magic-spark.svg', 18) ON CONFLICT (id) DO NOTHING;
+INSERT INTO stickers (id, name, image_url, price) VALUES
+(4, 'Pinecone Charm', 'nature://pinecone', 16) ON CONFLICT (id) DO NOTHING;
+INSERT INTO stickers (id, name, image_url, price) VALUES
+(5, 'Tiny Sapling', 'nature://sapling', 16) ON CONFLICT (id) DO NOTHING;
+INSERT INTO stickers (id, name, image_url, price) VALUES
+(6, 'Emerald Oak', 'nature://emerald-oak', 20) ON CONFLICT (id) DO NOTHING;
+INSERT INTO stickers (id, name, image_url, price) VALUES
+(7, 'Bonsai Grove', 'nature://bonsai-grove', 20) ON CONFLICT (id) DO NOTHING;
+INSERT INTO stickers (id, name, image_url, price) VALUES
+(8, 'Budding Branch', 'nature://budding-branch', 18) ON CONFLICT (id) DO NOTHING;
+INSERT INTO stickers (id, name, image_url, price) VALUES
+(9, 'Blossom Tree', 'nature://blossom-tree', 22) ON CONFLICT (id) DO NOTHING;

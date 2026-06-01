@@ -33,6 +33,10 @@ public class ScrapbookEntry {
     /** Cloudinary URL of attached image */
     private String imageUrl;
 
+    /** JSON array of placed stickers: [{"stickerId":1,"x":24,"y":40}] */
+    @Column(columnDefinition = "TEXT")
+    private String placedStickersJson;
+
     @CreationTimestamp
     private Instant createdAt;
 

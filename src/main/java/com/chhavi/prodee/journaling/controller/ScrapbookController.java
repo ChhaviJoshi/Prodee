@@ -35,11 +35,27 @@ public class ScrapbookController {
             @AuthenticationPrincipal UserDetails user,
             @RequestParam("title") @NotBlank @Size(max = 200) String title,
             @RequestParam(value = "content", required = false) String content,
+            @RequestParam(value = "placedStickers", required = false) String placedStickers,
             @RequestPart(value = "image", required = false) MultipartFile image) {
-        ScrapbookRequest request = new ScrapbookRequest(title, content);
+        ScrapbookRequest request = ScrapbookJsonSupport.requestFrom(title, content, placedStickers);
         ScrapbookResponse entry = scrapbookService.createEntry(user.getUsername(), request, image);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Scrapbook entry created", entry));
+    }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Update a scrapbook entry with optional new image and sticker placements")
+    public ResponseEntity<ApiResponse<ScrapbookResponse>> update(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable Long id,
+            @RequestParam("title") @NotBlank @Size(max = 200) String title,
+            @RequestParam(value = "content", required = false) String content,
+            @RequestParam(value = "placedStickers", required = false) String placedStickers,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        ScrapbookRequest request = ScrapbookJsonSupport.requestFrom(title, content, placedStickers);
+        return ResponseEntity.ok(ApiResponse.success(
+                "Scrapbook entry updated",
+                scrapbookService.updateEntry(user.getUsername(), id, request, image)));
     }
 
     @GetMapping

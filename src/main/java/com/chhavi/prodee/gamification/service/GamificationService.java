@@ -8,6 +8,7 @@ import com.chhavi.prodee.gamification.event.HabitCompletedEvent;
 import com.chhavi.prodee.gamification.event.TaskCompletedEvent;
 import com.chhavi.prodee.productivity.entity.Task;
 import com.chhavi.prodee.productivity.entity.TaskDifficulty;
+import com.chhavi.prodee.social.service.CohortService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class GamificationService {
 
     private final UserRepository userRepository;
+    private final CohortService cohortService;
 
     /** XP required to reach the next level: level * 100 */
     private static int xpForLevel(int level) {
@@ -38,6 +40,7 @@ public class GamificationService {
         TaskDifficulty diff = task.getDifficulty();
 
         awardXpAndCoins(user, diff.getXpReward(), diff.getCoinReward());
+        cohortService.addScoreForUser(user.getId(), diff.getXpReward());
 
         log.info("Awarded {} XP and {} Coins to {} for task (now Level {})",
                 diff.getXpReward(), diff.getCoinReward(), user.getUsername(), user.getLevel());
@@ -58,6 +61,7 @@ public class GamificationService {
         if (streak == 100){ xp += 100; coins += 60; log.info("🔥 100-day streak bonus for {}!", user.getUsername()); }
 
         awardXpAndCoins(user, xp, coins);
+        cohortService.addScoreForUser(user.getId(), xp);
 
         log.info("Awarded {} XP and {} Coins to {} for habit (streak {}, Level {})",
                 xp, coins, user.getUsername(), streak, user.getLevel());

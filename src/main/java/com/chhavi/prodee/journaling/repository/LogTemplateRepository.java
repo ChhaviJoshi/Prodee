@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface LogTemplateRepository extends JpaRepository<LogTemplate, Long> {
     List<LogTemplate> findByUserId(Long userId);
+    boolean existsByUserIdAndNameIgnoreCase(Long userId, String name);
 }

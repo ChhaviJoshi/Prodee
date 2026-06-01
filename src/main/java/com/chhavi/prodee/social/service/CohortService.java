@@ -8,6 +8,8 @@ import com.chhavi.prodee.social.dto.*;
 import com.chhavi.prodee.social.entity.Cohort;
 import com.chhavi.prodee.social.entity.CohortMember;
 import com.chhavi.prodee.social.entity.CohortRole;
+import com.chhavi.prodee.productivity.repository.HabitCompletionRepository;
+import com.chhavi.prodee.productivity.repository.TaskRepository;
 import com.chhavi.prodee.social.repository.CohortMemberRepository;
 import com.chhavi.prodee.social.repository.CohortRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +18,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,6 +33,13 @@ public class CohortService {
     private final CohortRepository cohortRepository;
     private final CohortMemberRepository memberRepository;
     private final UserRepository userRepository;
+        private final TaskRepository taskRepository;
+        private final HabitCompletionRepository habitCompletionRepository;
+
+        private static final int TASK_WEEKLY_SCORE = 10;
+        private static final int HABIT_WEEKLY_SCORE = 5;
+        private static final int DAILY_WIN_XP_REWARD = 40;
+        private static final int DAILY_WIN_COIN_REWARD = 25;
 
     @Transactional
     public CohortResponse createCohort(String username, CreateCohortRequest request) {
@@ -85,16 +97,46 @@ public class CohortService {
 
     public List<LeaderboardEntry> getLeaderboard(Long cohortId) {
         List<CohortMember> members = memberRepository.findByCohortIdOrderByDailyScoreDesc(cohortId);
+                Instant weekAgo = Instant.now().minus(7, ChronoUnit.DAYS);
+                LocalDate today = LocalDate.now();
+                LocalDate weekStartDate = today.minusDays(6);
         AtomicInteger rank = new AtomicInteger(1);
         return members.stream()
-                .map(m -> new LeaderboardEntry(
-                        rank.getAndIncrement(),
-                        m.getUser().getId(),
-                        m.getUser().getUsername(),
-                        m.getDailyScore(),
-                        m.getUser().getLevel()))
+                                .map(m -> {
+                                        long weeklyTaskCount = taskRepository.countByUserIdAndCompletedAtBetween(
+                                                        m.getUser().getId(), weekAgo, Instant.now());
+                                        long weeklyHabitCount = habitCompletionRepository.countByUserIdAndCompletedDateBetween(
+                                                        m.getUser().getId(), weekStartDate, today);
+                                        int weeklyScore = (int) (weeklyTaskCount * TASK_WEEKLY_SCORE + weeklyHabitCount * HABIT_WEEKLY_SCORE);
+
+                                        return new LeaderboardEntry(
+                                                        rank.getAndIncrement(),
+                                                        m.getUser().getId(),
+                                                        m.getUser().getUsername(),
+                                                        m.getDailyScore(),
+                                                        weeklyScore,
+                                                        m.getFirstPlaceFinishes(),
+                                                        m.getUser().getLevel());
+                                })
                 .toList();
     }
+
+        @Transactional
+        public void addScoreForUser(Long userId, int delta) {
+                if (delta <= 0) {
+                        return;
+                }
+
+                List<CohortMember> memberships = memberRepository.findByUserId(userId);
+                if (memberships.isEmpty()) {
+                        return;
+                }
+
+                for (CohortMember member : memberships) {
+                        member.setDailyScore(member.getDailyScore() + delta);
+                }
+                memberRepository.saveAll(memberships);
+        }
 
     @Transactional
     public void kickMember(String adminUsername, Long cohortId, Long targetUserId) {
@@ -116,12 +158,46 @@ public class CohortService {
      * Resets all cohort members' daily scores to zero.
      * @Transactional is required because the repository method uses @Modifying.
      */
-    @Scheduled(cron = "0 0 0 * * *")
+        @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Kolkata")
     @Transactional
     public void resetDailyScores() {
+                int rewarded = rewardDailyTopMembers();
         int updated = memberRepository.resetAllDailyScores();
-        log.info("Reset daily scores for {} cohort members", updated);
+                log.info("Rewarded {} top cohort members and reset daily scores for {} members", rewarded, updated);
     }
+
+        private int rewardDailyTopMembers() {
+                int rewardedCount = 0;
+                List<Cohort> cohorts = cohortRepository.findAll();
+
+                for (Cohort cohort : cohorts) {
+                        List<CohortMember> members = memberRepository.findByCohortIdOrderByDailyScoreDesc(cohort.getId());
+                        if (members.isEmpty()) {
+                                continue;
+                        }
+
+                        int topScore = members.get(0).getDailyScore();
+                        if (topScore <= 0) {
+                                continue;
+                        }
+
+                        for (CohortMember member : members) {
+                                if (member.getDailyScore() != topScore) {
+                                        break;
+                                }
+
+                                member.setFirstPlaceFinishes(member.getFirstPlaceFinishes() + 1);
+                                User winner = member.getUser();
+                                winner.setXp(winner.getXp() + DAILY_WIN_XP_REWARD);
+                                winner.setCoins(winner.getCoins() + DAILY_WIN_COIN_REWARD);
+                                userRepository.save(winner);
+                                rewardedCount++;
+                        }
+                        memberRepository.saveAll(members);
+                }
+
+                return rewardedCount;
+        }
 
     // ── helpers ──────────────────────────────────────────────
 

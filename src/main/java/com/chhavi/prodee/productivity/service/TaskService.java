@@ -33,8 +33,6 @@ public class TaskService {
                 .title(request.title())
                 .description(request.description())
                 .difficulty(request.difficulty())
-                .recurring(request.recurring())
-                .isPrivate(request.isPrivate())
                 .tags(request.tags())
                 .dueDate(request.dueDate())
                 .build();
@@ -58,8 +56,6 @@ public class TaskService {
         task.setTitle(request.title());
         task.setDescription(request.description());
         task.setDifficulty(request.difficulty());
-        task.setRecurring(request.recurring());
-        task.setPrivate(request.isPrivate());
         task.setTags(request.tags());
         task.setDueDate(request.dueDate());
         return toResponse(taskRepository.save(task));
@@ -88,10 +84,10 @@ public class TaskService {
     }
 
     /**
-     * Return public tasks for a given user (used by Cohort views)
+     * Return all tasks for a given user (used by Cohort views)
      */
     public List<TaskResponse> getPublicTasks(Long userId) {
-        return taskRepository.findByUserIdAndIsPrivateFalse(userId)
+        return taskRepository.findByUserIdOrderByCreatedAtDesc(userId)
                 .stream().map(this::toResponse).toList();
     }
 
@@ -115,7 +111,7 @@ public class TaskService {
     private TaskResponse toResponse(Task t) {
         return new TaskResponse(
                 t.getId(), t.getTitle(), t.getDescription(), t.getDifficulty(),
-                t.isRecurring(), t.isPrivate(), t.isCompleted(), t.getTags(),
+                t.isCompleted(), t.getTags(),
                 t.getDueDate(), t.getCompletedAt(), t.getCreatedAt());
     }
 }

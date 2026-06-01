@@ -31,11 +31,17 @@ public class DailyAnalyticsLog {
     @Column(nullable = false)
     private Double sleepHours;
 
-    /** Digital wellbeing: screen time in minutes */
+    /** Digital wellbeing: screen time in hours */
     @Column(nullable = false)
-    private Integer screenTimeMinutes;
+    private Double screenTimeHours;
 
-    /** Deep work / productive focus time in minutes */
+    /** Water intake in glasses */
+    @Builder.Default
     @Column(nullable = false)
-    private Integer productivityFocusMinutes;
+    private Integer waterGlasses = 0;
+
+    /** Exercise duration in minutes */
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer exerciseMinutes = 0;
 }

@@ -2,6 +2,7 @@ package com.chhavi.prodee.productivity.repository;
 
 import com.chhavi.prodee.productivity.entity.HabitCompletion;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -18,5 +19,15 @@ public interface HabitCompletionRepository extends JpaRepository<HabitCompletion
     List<HabitCompletion> findByUserIdAndCompletedDateBetweenOrderByCompletedDateAsc(
             Long userId, LocalDate start, LocalDate end);
 
+        long countByUserIdAndCompletedDateBetween(Long userId, LocalDate start, LocalDate end);
+
     long countByHabitId(Long habitId);
+
+        @Query("""
+                        SELECT COUNT(hc) FROM HabitCompletion hc
+                        WHERE hc.user.id = :userId
+                            AND hc.completedDate = :completedDate
+                            AND UPPER(hc.habit.frequency) = 'DAILY'
+                        """)
+        long countDailyCompletionsByUserIdAndDate(Long userId, LocalDate completedDate);
 }

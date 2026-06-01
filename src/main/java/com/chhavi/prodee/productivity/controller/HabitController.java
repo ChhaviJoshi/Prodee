@@ -41,6 +41,16 @@ public class HabitController {
         return ResponseEntity.ok(ApiResponse.success(habitService.getUserHabits(user.getUsername())));
     }
 
+    @PutMapping("/{id}")
+    @Operation(summary = "Update a habit")
+    public ResponseEntity<ApiResponse<HabitResponse>> update(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable Long id,
+            @Valid @RequestBody HabitRequest request) {
+        return ResponseEntity.ok(
+                ApiResponse.success("Habit updated", habitService.updateHabit(user.getUsername(), id, request)));
+    }
+
     @PostMapping("/{id}/complete")
     @Operation(summary = "Complete a habit for today (records completion, updates streak, awards XP)")
     public ResponseEntity<ApiResponse<HabitResponse>> completeHabit(

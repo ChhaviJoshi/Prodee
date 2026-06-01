@@ -5,5 +5,7 @@ public record LeaderboardEntry(
         Long userId,
         String username,
         int dailyScore,
+        int weeklyScore,
+        int firstPlaceFinishes,
         int level
 ) {}

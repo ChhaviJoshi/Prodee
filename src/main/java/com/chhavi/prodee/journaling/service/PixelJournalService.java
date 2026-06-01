@@ -50,6 +50,58 @@ public class PixelJournalService {
                 .stream().map(this::toTemplateResponse).toList();
     }
 
+    @Transactional
+    public LogTemplateResponse updateTemplate(String username, Long templateId, UpdateLogTemplateRequest request) {
+        User user = findUser(username);
+        LogTemplate template = templateRepository.findById(templateId)
+                .orElseThrow(() -> new ResourceNotFoundException("LogTemplate", "id", templateId));
+
+        if (!template.getUser().getId().equals(user.getId())) {
+            throw new BadRequestException("Template does not belong to you");
+        }
+
+        validateColorMapping(request.colorMapping());
+        template.setName(request.name());
+        template.setColorMapping(request.colorMapping());
+        return toTemplateResponse(templateRepository.save(template));
+    }
+
+    @Transactional
+    public void deleteTemplate(String username, Long templateId) {
+        User user = findUser(username);
+        LogTemplate template = templateRepository.findById(templateId)
+                .orElseThrow(() -> new ResourceNotFoundException("LogTemplate", "id", templateId));
+
+        if (!template.getUser().getId().equals(user.getId())) {
+            throw new BadRequestException("Template does not belong to you");
+        }
+
+        if ("Mood".equalsIgnoreCase(template.getName())) {
+            throw new BadRequestException("Default Mood template cannot be deleted");
+        }
+
+        long ownedTemplates = templateRepository.findByUserId(user.getId()).size();
+        if (ownedTemplates <= 1) {
+            throw new BadRequestException("You must keep at least one template");
+        }
+
+        templateRepository.delete(template);
+    }
+
+    @Transactional
+    public void createDefaultMoodTemplateForUser(User user) {
+        if (templateRepository.existsByUserIdAndNameIgnoreCase(user.getId(), "Mood")) {
+            return;
+        }
+
+        LogTemplate template = LogTemplate.builder()
+                .user(user)
+                .name("Mood")
+                .colorMapping("{\"1\":\"#f44336\",\"2\":\"#ff9800\",\"3\":\"#ffc107\",\"4\":\"#8bc34a\",\"5\":\"#4caf50\"}")
+                .build();
+        templateRepository.save(template);
+    }
+
     // ── Pixels ───────────────────────────────────────────────
 
     @Transactional
@@ -62,21 +114,18 @@ public class PixelJournalService {
             throw new BadRequestException("Template does not belong to you");
         }
 
-        // Resolve color from the template mapping using intensity as the key
-        Map<String, String> mapping = parseColorMapping(template.getColorMapping());
-        String intensityKey = String.valueOf(request.intensity());
-        String color = mapping.get(intensityKey);
-        if (color == null) {
-            throw new BadRequestException("Invalid intensity '" + request.intensity()
-                    + "'. Allowed intensity levels: " + mapping.keySet());
-        }
+        String color = resolveColorHex(template, request.intensity());
 
-        DailyPixel pixel = DailyPixel.builder()
+        DailyPixel pixel = pixelRepository
+            .findByUserIdAndTemplateIdAndPixelDate(user.getId(), template.getId(), request.date())
+            .orElseGet(() -> DailyPixel.builder()
                 .user(user)
                 .template(template)
                 .pixelDate(request.date())
-                .intensity(request.intensity())
-                .build();
+                .build());
+
+        pixel.setIntensity(request.intensity());
+        pixel.setColorHex(color);
         return toPixelResponse(pixelRepository.save(pixel), color);
     }
 
@@ -137,12 +186,26 @@ public class PixelJournalService {
         return new LogTemplateResponse(t.getId(), t.getName(), t.getColorMapping(), t.getCreatedAt());
     }
 
+    private String resolveColorHex(LogTemplate template, Integer intensity) {
+        Map<String, String> mapping = parseColorMapping(template.getColorMapping());
+        String intensityKey = String.valueOf(intensity);
+        String color = mapping.get(intensityKey);
+        if (color == null) {
+            throw new BadRequestException("Invalid intensity '" + intensity
+                    + "'. Allowed intensity levels: " + mapping.keySet());
+        }
+        return color;
+    }
+
     /**
      * Build response with resolved colorHex by looking up intensity in template's colorMapping.
      */
     private DailyPixelResponse toPixelResponseWithLookup(DailyPixel p) {
-        Map<String, String> mapping = parseColorMapping(p.getTemplate().getColorMapping());
-        String colorHex = mapping.getOrDefault(String.valueOf(p.getIntensity()), "#808080");
+        String colorHex = p.getColorHex();
+        if (colorHex == null || colorHex.isBlank()) {
+            Map<String, String> mapping = parseColorMapping(p.getTemplate().getColorMapping());
+            colorHex = mapping.getOrDefault(String.valueOf(p.getIntensity()), "#808080");
+        }
         return new DailyPixelResponse(
                 p.getId(), p.getTemplate().getName(), p.getPixelDate(), p.getIntensity(), colorHex);
     }

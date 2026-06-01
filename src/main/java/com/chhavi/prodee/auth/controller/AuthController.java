@@ -3,6 +3,7 @@ package com.chhavi.prodee.auth.controller;
 import com.chhavi.prodee.auth.dto.AuthResponse;
 import com.chhavi.prodee.auth.dto.LoginRequest;
 import com.chhavi.prodee.auth.dto.RegisterRequest;
+import com.chhavi.prodee.auth.dto.UserProfileResponse;
 import com.chhavi.prodee.auth.service.AuthService;
 import com.chhavi.prodee.common.dto.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,5 +37,13 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(ApiResponse.success("Login successful", response));
+    }
+
+    @GetMapping("/profile")
+    @Operation(summary = "Get current user profile")
+    public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        UserProfileResponse profile = authService.getProfile(userDetails.getUsername());
+        return ResponseEntity.ok(ApiResponse.success(profile));
     }
 }

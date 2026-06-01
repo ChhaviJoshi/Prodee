@@ -42,6 +42,25 @@ public class PixelJournalController {
         return ResponseEntity.ok(ApiResponse.success(pixelJournalService.getTemplates(user.getUsername())));
     }
 
+        @PutMapping("/templates/{templateId}")
+        @Operation(summary = "Update an existing template (name and color mapping)")
+        public ResponseEntity<ApiResponse<LogTemplateResponse>> updateTemplate(
+                        @AuthenticationPrincipal UserDetails user,
+                        @PathVariable Long templateId,
+                        @Valid @RequestBody UpdateLogTemplateRequest request) {
+                LogTemplateResponse updated = pixelJournalService.updateTemplate(user.getUsername(), templateId, request);
+                return ResponseEntity.ok(ApiResponse.success("Template updated", updated));
+        }
+
+        @DeleteMapping("/templates/{templateId}")
+        @Operation(summary = "Delete a custom template and all of its painted pixels")
+        public ResponseEntity<ApiResponse<Void>> deleteTemplate(
+                        @AuthenticationPrincipal UserDetails user,
+                        @PathVariable Long templateId) {
+                pixelJournalService.deleteTemplate(user.getUsername(), templateId);
+                return ResponseEntity.ok(ApiResponse.success("Template deleted", null));
+        }
+
     // ── Pixels ───────────────────────────────────────────────
 
     @PostMapping

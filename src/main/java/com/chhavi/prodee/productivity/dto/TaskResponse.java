@@ -10,8 +10,6 @@ public record TaskResponse(
         String title,
         String description,
         TaskDifficulty difficulty,
-        boolean recurring,
-        boolean isPrivate,
         boolean completed,
         String tags,
         LocalDate dueDate,

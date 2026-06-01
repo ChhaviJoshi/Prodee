@@ -8,8 +8,7 @@ import java.time.LocalDate;
 
 /**
  * A single pixel in the "Year in Pixels" grid.
- * References a LogTemplate and stores the intensity level for the day.
- * The frontend uses intensity to look up the hex color from the template's colorMapping.
+ * References a LogTemplate and stores both the chosen intensity and its resolved hex color.
  */
 @Entity
 @Table(name = "daily_pixels",
@@ -35,4 +34,7 @@ public class DailyPixel {
     /** Intensity level (integer key into the template's colorMapping JSON) */
     @Column(nullable = false)
     private Integer intensity;
+
+    @Column(name = "color_hex", nullable = false, length = 7)
+    private String colorHex;
 }

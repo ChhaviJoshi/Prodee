@@ -47,7 +47,7 @@ class TaskControllerTest extends AbstractIntegrationTest {
         void givenValidTask_whenCreate_thenReturn201() throws Exception {
             TaskRequest req = new TaskRequest(
                     "Study Spring Boot", "Chapter 5", TaskDifficulty.MEDIUM,
-                    false, false, "java,spring", LocalDate.now().plusDays(3));
+                    "java,spring", LocalDate.now().plusDays(3));
 
             mockMvc.perform(post(BASE)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -66,7 +66,7 @@ class TaskControllerTest extends AbstractIntegrationTest {
         void givenMinimalTask_whenCreate_thenReturn201() throws Exception {
             TaskRequest req = new TaskRequest(
                     "Quick task", null, TaskDifficulty.EASY,
-                    false, false, null, null);
+                    null, null);
 
             mockMvc.perform(post(BASE)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -81,7 +81,7 @@ class TaskControllerTest extends AbstractIntegrationTest {
         void givenBlankTitle_whenCreate_thenReturn400() throws Exception {
             TaskRequest req = new TaskRequest(
                     "", null, TaskDifficulty.EASY,
-                    false, false, null, null);
+                    null, null);
 
             mockMvc.perform(post(BASE)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -111,7 +111,7 @@ class TaskControllerTest extends AbstractIntegrationTest {
         void givenNoAuth_whenCreate_thenReturn401() throws Exception {
             TaskRequest req = new TaskRequest(
                     "Unauthorized task", null, TaskDifficulty.EASY,
-                    false, false, null, null);
+                    null, null);
 
             mockMvc.perform(post(BASE)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -205,7 +205,7 @@ class TaskControllerTest extends AbstractIntegrationTest {
 
             TaskRequest updated = new TaskRequest(
                     "Updated title", "New description", TaskDifficulty.HARD,
-                    true, false, "updated", LocalDate.now().plusDays(7));
+                    "updated", LocalDate.now().plusDays(7));
 
             mockMvc.perform(put(BASE + "/" + taskId)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -221,7 +221,7 @@ class TaskControllerTest extends AbstractIntegrationTest {
         void givenNonExistentId_whenUpdate_thenReturn404() throws Exception {
             TaskRequest req = new TaskRequest(
                     "Ghost", null, TaskDifficulty.EASY,
-                    false, false, null, null);
+                    null, null);
 
             mockMvc.perform(put(BASE + "/99999")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -236,7 +236,7 @@ class TaskControllerTest extends AbstractIntegrationTest {
 
             TaskRequest bad = new TaskRequest(
                     "", null, TaskDifficulty.EASY,
-                    false, false, null, null);
+                    null, null);
 
             mockMvc.perform(put(BASE + "/" + taskId)
                             .contentType(MediaType.APPLICATION_JSON)
@@ -311,7 +311,7 @@ class TaskControllerTest extends AbstractIntegrationTest {
 
     /** Create a task via the API and return its ID. */
     private Long createTask(String title, TaskDifficulty difficulty) throws Exception {
-        TaskRequest req = new TaskRequest(title, null, difficulty, false, false, null, null);
+        TaskRequest req = new TaskRequest(title, null, difficulty, null, null);
 
         String body = mockMvc.perform(post(BASE)
                         .contentType(MediaType.APPLICATION_JSON)
