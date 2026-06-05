@@ -35,6 +35,13 @@ public class DailyPixel {
     @Column(nullable = false)
     private Integer intensity;
 
+    /**
+     * Backing value persisted for the year-in-pixels grid.
+     * Kept in sync with intensity to satisfy the existing database schema.
+     */
+    @Column(name = "pixel_value", nullable = false)
+    private Integer pixelValue;
+
     @Column(name = "color_hex", nullable = false, length = 7)
     private String colorHex;
 }

@@ -32,6 +32,7 @@ export default function ScrapbookPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [draggingStickerId, setDraggingStickerId] = useState(null);
+  const [isDraggingPlaced, setIsDraggingPlaced] = useState(false);
   const canvasRef = useRef(null);
 
   const activeEntry = useMemo(
@@ -108,7 +109,13 @@ export default function ScrapbookPage() {
   function onPlacedStickerDragStart(event, index) {
     event.dataTransfer.setData("text/placed-sticker-index", String(index));
     event.dataTransfer.effectAllowed = "move";
+    setIsDraggingPlaced(true);
     setDraggingStickerId(`placed-${index}`);
+  }
+
+  function onPlacedStickerDragEnd() {
+    setIsDraggingPlaced(false);
+    setDraggingStickerId(null);
   }
 
   async function backgroundUpdateStickers(newPlacedStickers, currentDraft, entryId) {
@@ -147,14 +154,16 @@ export default function ScrapbookPage() {
     const placedIndexRaw = event.dataTransfer.getData("text/placed-sticker-index");
     if (placedIndexRaw !== null && placedIndexRaw !== "") {
       const idx = Number(placedIndexRaw);
-      setDraft((current) => {
-        const arr = [...current.placedStickers];
-        if (arr[idx]) {
-          arr[idx] = { ...arr[idx], x: Math.round(x), y: Math.round(y) };
-        }
-        backgroundUpdateStickers(arr, current, activeEntryId);
-        return { ...current, placedStickers: arr };
-      });
+      if (idx >= 0) {
+        setDraft((current) => {
+          const arr = [...current.placedStickers];
+          if (arr[idx]) {
+            arr[idx] = { ...arr[idx], x: Math.round(x), y: Math.round(y) };
+          }
+          backgroundUpdateStickers(arr, current, activeEntryId);
+          return { ...current, placedStickers: arr };
+        });
+      }
       return;
     }
 
@@ -270,10 +279,10 @@ export default function ScrapbookPage() {
               ref={canvasRef}
               onDrop={onCanvasDrop}
               onDragOver={onCanvasDragOver}
-              className={`pixel-border-sm bg-[#fff9ef] p-3 min-h-[320px] relative overflow-hidden ${draggingStickerId !== null ? "ring-2 ring-retro-accent2" : ""}`}
+              className={`pixel-border-sm bg-[#fff9ef] min-h-[320px] relative overflow-hidden ${draggingStickerId !== null ? "ring-2 ring-retro-accent2" : ""}`}
             >
               <textarea
-                className={`w-full min-h-[240px] bg-transparent resize-none outline-none font-mono text-sm text-retro-text leading-7 ${draggingStickerId !== null ? "pointer-events-none" : ""}`}
+                className={`absolute inset-0 z-10 w-full h-full bg-transparent resize-none outline-none font-mono text-sm text-retro-text p-3 leading-7 ${(draggingStickerId !== null || isDraggingPlaced) ? "pointer-events-none" : ""}`}
                 placeholder="Write today's memory..."
                 value={draft.content}
                 onChange={(e) =>
@@ -294,8 +303,8 @@ export default function ScrapbookPage() {
                     key={`${placement.stickerId}-${index}`}
                     draggable={true}
                     onDragStart={(e) => onPlacedStickerDragStart(e, index)}
-                    onDragEnd={() => setDraggingStickerId(null)}
-                    className="absolute select-none text-2xl leading-none cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
+                    onDragEnd={onPlacedStickerDragEnd}
+                    className="absolute z-20 select-none text-2xl leading-none cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
                     style={{
                       left: `${placement.x}px`,
                       top: `${placement.y}px`,

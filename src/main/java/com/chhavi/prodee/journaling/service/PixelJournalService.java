@@ -125,6 +125,7 @@ public class PixelJournalService {
                 .build());
 
         pixel.setIntensity(request.intensity());
+        pixel.setPixelValue(request.intensity());
         pixel.setColorHex(color);
         return toPixelResponse(pixelRepository.save(pixel), color);
     }
