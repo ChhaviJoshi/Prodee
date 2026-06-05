@@ -111,9 +111,13 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  async function refreshProfile() {
+    if (token) await fetchProfile(token);
+  }
+
   return (
     <AuthContext.Provider
-      value={{ user, token, loading, login, register, logout, setUser }}
+      value={{ user, token, loading, login, register, logout, setUser, refreshProfile }}
     >
       {children}
     </AuthContext.Provider>

@@ -105,13 +105,31 @@ export default function ScrapbookPage() {
     setDraggingStickerId(stickerId);
   }
 
+  function onPlacedStickerDragStart(event, index) {
+    event.dataTransfer.setData("text/placed-sticker-index", String(index));
+    event.dataTransfer.effectAllowed = "move";
+    setDraggingStickerId(`placed-${index}`);
+  }
+
+  async function backgroundUpdateStickers(newPlacedStickers, currentDraft, entryId) {
+    if (!entryId) return;
+    const form = new FormData();
+    form.append("title", currentDraft.title || "Untitled Memory");
+    form.append("content", currentDraft.content || "");
+    form.append("placedStickers", JSON.stringify(newPlacedStickers || []));
+    
+    try {
+      await apiPutForm(`/api/journal/scrapbook/${entryId}`, form);
+    } catch (err) {
+      console.error("Failed to auto-save sticker position", err);
+    }
+  }
+
   function onCanvasDrop(event) {
     event.preventDefault();
 
-    const rawId = event.dataTransfer.getData("text/sticker-id");
-    const stickerId = Number(rawId);
     const rect = canvasRef.current?.getBoundingClientRect();
-    if (!stickerId || !rect) {
+    if (!rect) {
       setDraggingStickerId(null);
       return;
     }
@@ -126,13 +144,35 @@ export default function ScrapbookPage() {
       Math.min(rect.height - size, event.clientY - rect.top - size / 2),
     );
 
-    setDraft((current) => ({
-      ...current,
-      placedStickers: [
+    const placedIndexRaw = event.dataTransfer.getData("text/placed-sticker-index");
+    if (placedIndexRaw !== null && placedIndexRaw !== "") {
+      const idx = Number(placedIndexRaw);
+      setDraft((current) => {
+        const arr = [...current.placedStickers];
+        if (arr[idx]) {
+          arr[idx] = { ...arr[idx], x: Math.round(x), y: Math.round(y) };
+        }
+        backgroundUpdateStickers(arr, current, activeEntryId);
+        return { ...current, placedStickers: arr };
+      });
+      return;
+    }
+
+    const rawId = event.dataTransfer.getData("text/sticker-id");
+    const stickerId = Number(rawId);
+    if (stickerId == null || isNaN(stickerId)) {
+      setDraggingStickerId(null);
+      return;
+    }
+
+    setDraft((current) => {
+      const newStickers = [
         ...current.placedStickers,
         { stickerId, x: Math.round(x), y: Math.round(y) },
-      ],
-    }));
+      ];
+      backgroundUpdateStickers(newStickers, current, activeEntryId);
+      return { ...current, placedStickers: newStickers };
+    });
     setDraggingStickerId(null);
   }
 
@@ -230,10 +270,10 @@ export default function ScrapbookPage() {
               ref={canvasRef}
               onDrop={onCanvasDrop}
               onDragOver={onCanvasDragOver}
-              className={`pixel-border-sm bg-[#fff9ef] p-3 min-h-[320px] relative overflow-hidden ${draggingStickerId ? "ring-2 ring-retro-accent2" : ""}`}
+              className={`pixel-border-sm bg-[#fff9ef] p-3 min-h-[320px] relative overflow-hidden ${draggingStickerId !== null ? "ring-2 ring-retro-accent2" : ""}`}
             >
               <textarea
-                className="w-full min-h-[240px] bg-transparent resize-none outline-none font-mono text-sm text-retro-text leading-7"
+                className={`w-full min-h-[240px] bg-transparent resize-none outline-none font-mono text-sm text-retro-text leading-7 ${draggingStickerId !== null ? "pointer-events-none" : ""}`}
                 placeholder="Write today's memory..."
                 value={draft.content}
                 onChange={(e) =>
@@ -242,8 +282,6 @@ export default function ScrapbookPage() {
                     content: e.target.value,
                   }))
                 }
-                onDrop={onCanvasDrop}
-                onDragOver={onCanvasDragOver}
               />
 
               {draft.placedStickers.map((placement, index) => {
@@ -254,7 +292,10 @@ export default function ScrapbookPage() {
                 return (
                   <span
                     key={`${placement.stickerId}-${index}`}
-                    className="absolute pointer-events-none select-none text-2xl leading-none"
+                    draggable={true}
+                    onDragStart={(e) => onPlacedStickerDragStart(e, index)}
+                    onDragEnd={() => setDraggingStickerId(null)}
+                    className="absolute select-none text-2xl leading-none cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
                     style={{
                       left: `${placement.x}px`,
                       top: `${placement.y}px`,

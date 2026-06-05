@@ -14,6 +14,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByUserIdOrderByCreatedAtDesc(Long userId);
     List<Task> findByUserIdAndCompleted(Long userId, boolean completed);
     List<Task> findByUserIdAndDueDate(Long userId, LocalDate dueDate);
+    List<Task> findByCompletedTrue();
     long countByUserIdAndCompletedTrue(Long userId);
     long countByUserIdAndCompletedAtBetween(Long userId, Instant start, Instant end);
 

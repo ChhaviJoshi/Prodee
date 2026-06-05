@@ -10,9 +10,11 @@ import {
   X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function TasksPage() {
   const navigate = useNavigate();
+  const { refreshProfile } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [habits, setHabits] = useState([]);
   const [tab, setTab] = useState("tasks");
@@ -132,6 +134,7 @@ export default function TasksPage() {
     try {
       await apiPost(`/api/tasks/${id}/complete`);
       loadData();
+      refreshProfile();
     } catch {
       // fallback
     }
@@ -141,6 +144,7 @@ export default function TasksPage() {
     try {
       await apiPost(`/api/habits/${id}/complete`);
       loadData();
+      refreshProfile();
     } catch (err) {
       alert(err.message);
     }

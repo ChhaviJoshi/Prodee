@@ -45,8 +45,21 @@ public class HabitService {
 
     public List<HabitResponse> getUserHabits(String username) {
         User user = findUser(username);
-        return habitRepository.findByUserId(user.getId())
-                .stream().map(this::toResponse).toList();
+        List<Habit> habits = habitRepository.findByUserId(user.getId());
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(1);
+
+        for (Habit habit : habits) {
+            if ("DAILY".equalsIgnoreCase(habit.getFrequency()) && habit.getStreak() > 0) {
+                boolean completedTodayOrYesterday = completionRepository.existsByHabitIdAndCompletedDate(habit.getId(), today) ||
+                                                    completionRepository.existsByHabitIdAndCompletedDate(habit.getId(), yesterday);
+                if (!completedTodayOrYesterday) {
+                    habit.setStreak(0);
+                    habitRepository.save(habit);
+                }
+            }
+        }
+        return habits.stream().map(this::toResponse).toList();
     }
 
     /**

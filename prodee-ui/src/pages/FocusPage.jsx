@@ -134,7 +134,28 @@ export default function FocusPage() {
     }
   }, [remaining, mode, duration, activeSound, sessionStartedAt]);
 
+  function logPartialSessionIfNeeded() {
+    if (mode === "work" && !loggedRef.current) {
+      const elapsedSeconds = duration - remaining;
+      if (elapsedSeconds >= 60) {
+        const startedAt =
+          sessionStartedAt ||
+          new Date(Date.now() - elapsedSeconds * 1000).toISOString();
+        apiPost("/api/focus-sessions", {
+          expectedDurationMinutes: Math.round(duration / 60),
+          actualDurationMinutes: Math.round(elapsedSeconds / 60),
+          ambientType: activeSound?.toUpperCase() || "SILENCE",
+          startedAt,
+          endedAt: new Date().toISOString(),
+        })
+          .then(() => setSessionDone((d) => !d))
+          .catch(() => {});
+      }
+    }
+  }
+
   function applyCustom() {
+    logPartialSessionIfNeeded();
     const mins = Math.max(1, Math.min(180, +customMin || 25));
     const d = mins * 60;
     setDuration(d);
@@ -146,6 +167,7 @@ export default function FocusPage() {
   }
 
   function switchMode(m) {
+    logPartialSessionIfNeeded();
     setMode(m);
     const mins = m === "work" ? customMin : 5;
     const d = mins * 60;
@@ -159,6 +181,7 @@ export default function FocusPage() {
   }
 
   function reset() {
+    logPartialSessionIfNeeded();
     setRemaining(duration);
     setRunning(false);
     setSessionStartedAt(null);

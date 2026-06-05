@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import java.time.Instant;
 import java.util.List;
@@ -89,6 +90,16 @@ public class TaskService {
     public List<TaskResponse> getPublicTasks(Long userId) {
         return taskRepository.findByUserIdOrderByCreatedAtDesc(userId)
                 .stream().map(this::toResponse).toList();
+    }
+
+    /**
+     * Hard delete completed tasks at the end of the day.
+     */
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Kolkata")
+    @Transactional
+    public void deleteCompletedTasks() {
+        List<Task> completedTasks = taskRepository.findByCompletedTrue();
+        taskRepository.deleteAll(completedTasks);
     }
 
     // ── helpers ──────────────────────────────────────────────

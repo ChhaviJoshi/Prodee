@@ -49,6 +49,7 @@ public class AuthService {
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .roles(Set.of(userRole))
+                .coins(15)
                 .build();
 
         userRepository.save(user);
