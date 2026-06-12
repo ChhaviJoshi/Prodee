@@ -101,13 +101,13 @@ export default function ScrapbookPage() {
   }
 
   function onStickerDragStart(event, stickerId) {
-    event.dataTransfer.setData("text/sticker-id", String(stickerId));
+    event.dataTransfer.setData("application/json", JSON.stringify({ type: "new", stickerId }));
     event.dataTransfer.effectAllowed = "copy";
     setDraggingStickerId(stickerId);
   }
 
   function onPlacedStickerDragStart(event, index) {
-    event.dataTransfer.setData("text/placed-sticker-index", String(index));
+    event.dataTransfer.setData("application/json", JSON.stringify({ type: "placed", index }));
     event.dataTransfer.effectAllowed = "move";
     setIsDraggingPlaced(true);
     setDraggingStickerId(`placed-${index}`);
@@ -138,6 +138,7 @@ export default function ScrapbookPage() {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) {
       setDraggingStickerId(null);
+      setIsDraggingPlaced(false);
       return;
     }
 
@@ -151,9 +152,22 @@ export default function ScrapbookPage() {
       Math.min(rect.height - size, event.clientY - rect.top - size / 2),
     );
 
+    let dragData;
+    try {
+      const textData = event.dataTransfer.getData("application/json");
+      if (textData) {
+        dragData = JSON.parse(textData);
+      }
+    } catch (err) {
+      console.error("Failed to parse drag data", err);
+    }
+
+    // fallback for older code if dataTransfer is empty or different
     const placedIndexRaw = event.dataTransfer.getData("text/placed-sticker-index");
-    if (placedIndexRaw !== null && placedIndexRaw !== "") {
-      const idx = Number(placedIndexRaw);
+    const newStickerRaw = event.dataTransfer.getData("text/sticker-id");
+
+    if (dragData?.type === "placed" || (placedIndexRaw !== null && placedIndexRaw !== "")) {
+      const idx = dragData?.type === "placed" ? dragData.index : Number(placedIndexRaw);
       if (idx >= 0) {
         setDraft((current) => {
           const arr = [...current.placedStickers];
@@ -164,30 +178,32 @@ export default function ScrapbookPage() {
           return { ...current, placedStickers: arr };
         });
       }
-      return;
-    }
-
-    const rawId = event.dataTransfer.getData("text/sticker-id");
-    const stickerId = Number(rawId);
-    if (stickerId == null || isNaN(stickerId)) {
       setDraggingStickerId(null);
+      setIsDraggingPlaced(false);
       return;
     }
 
-    setDraft((current) => {
-      const newStickers = [
-        ...current.placedStickers,
-        { stickerId, x: Math.round(x), y: Math.round(y) },
-      ];
-      backgroundUpdateStickers(newStickers, current, activeEntryId);
-      return { ...current, placedStickers: newStickers };
-    });
+    if (dragData?.type === "new" || (newStickerRaw !== null && newStickerRaw !== "")) {
+      const stickerId = dragData?.type === "new" ? dragData.stickerId : Number(newStickerRaw);
+      if (stickerId != null && !isNaN(stickerId)) {
+        setDraft((current) => {
+          const newStickers = [
+            ...current.placedStickers,
+            { stickerId, x: Math.round(x), y: Math.round(y) },
+          ];
+          backgroundUpdateStickers(newStickers, current, activeEntryId);
+          return { ...current, placedStickers: newStickers };
+        });
+      }
+    }
+    
     setDraggingStickerId(null);
+    setIsDraggingPlaced(false);
   }
 
   function onCanvasDragOver(event) {
     event.preventDefault();
-    event.dataTransfer.dropEffect = "copy";
+    event.dataTransfer.dropEffect = isDraggingPlaced ? "move" : "copy";
   }
 
   async function saveEntry(e) {
