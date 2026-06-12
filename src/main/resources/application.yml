@@ -1,6 +1,8 @@
 spring:
   application:
     name: prodee
+  main:
+    lazy-initialization: true
 
   # ---------- Datasource ----------
   datasource:
@@ -11,6 +13,7 @@ spring:
 
   # ---------- JPA / Hibernate ----------
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: update
     show-sql: false
@@ -38,7 +41,7 @@ prodee:
 
 # ---------- Server ----------
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 # ---------- Swagger / OpenAPI ----------
 springdoc:
