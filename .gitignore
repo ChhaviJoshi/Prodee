@@ -34,3 +34,6 @@ build/
 
 # Improvements
 improvements.md
+
+# Node modules
+node_modules
