@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, useRef } from "react";
+import { customFetch } from "../api";
 
 const AuthContext = createContext();
 
@@ -24,7 +25,7 @@ export function AuthProvider({ children }) {
     if (fetchingRef.current) return;
     fetchingRef.current = true;
     try {
-      const res = await fetch("/api/auth/profile", {
+      const res = await customFetch("/api/auth/profile", {
         headers: { Authorization: `Bearer ${jwt}` },
       });
       if (res.ok) {
@@ -46,7 +47,7 @@ export function AuthProvider({ children }) {
   }
 
   async function login(username, password) {
-    const res = await fetch("/api/auth/login", {
+    const res = await customFetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -62,7 +63,7 @@ export function AuthProvider({ children }) {
     // Fetch full profile before resolving login
     setLoading(true);
     try {
-      const profileRes = await fetch("/api/auth/profile", {
+      const profileRes = await customFetch("/api/auth/profile", {
         headers: { Authorization: `Bearer ${jwt}` },
       });
       if (profileRes.ok) {
@@ -92,7 +93,7 @@ export function AuthProvider({ children }) {
   }
 
   async function register(username, email, password) {
-    const res = await fetch("/api/auth/register", {
+    const res = await customFetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, email, password }),
