@@ -10,3 +10,10 @@
 #game resource urls
 -snake: https://codepen.io/beumsk/embed/PmPxEo?default-tab=result
 -tic tac toe: https://codepen.io/r00bal/embed/MpQrKz?default-tab=result
+
+-----
+-if digital diary not saved, save it as draft
+-sticker delete option
+-focus forge timer end reminder
+-frontend mountain svg fix
+-forgot password, continue with google

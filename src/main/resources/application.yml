@@ -22,6 +22,19 @@ spring:
         format_sql: true
     defer-datasource-initialization: true
 
+  # ---------- Email ----------
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   # ---------- SQL seed data ----------
   sql:
     init:
@@ -29,6 +42,8 @@ spring:
 
 # ---------- Prodee Custom Properties ----------
 prodee:
+  google:
+    client-id: ${CLIENT_ID:}
   jwt:
     secret: ${JWT_SECRET:myVeryLongAndSecureJwtSecretKeyForProdeeApplicationThatIsAtLeast256BitsLongAndSecure2024}
     expiration-ms: 86400000 # 24 hours

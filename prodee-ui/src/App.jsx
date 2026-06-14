@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import Layout from "./components/Layout";
 import LoginPage from "./pages/LoginPage";
 import CharacterSelect from "./pages/CharacterSelect";
@@ -38,6 +39,7 @@ function GuestRoute({ children }) {
 
 export default function App() {
   return (
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ""}>
     <ThemeProvider>
       <AuthProvider>
         <BrowserRouter>
@@ -83,5 +85,6 @@ export default function App() {
         </BrowserRouter>
       </AuthProvider>
     </ThemeProvider>
+    </GoogleOAuthProvider>
   );
 }
